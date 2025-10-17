@@ -48,7 +48,7 @@
 
   .date { color: #ffa31a; font-weight: bold; margin-bottom: 10px; }
   .type { font-size: 1.2rem; margin-bottom: 5px; }
-  .details { color: #ccc; margin-bottom: 15px; }
+  .details { color: #ccc; margin-bottom: 15px; white-space: pre-line; }
   button {
     background: #ffa31a;
     border: none;
@@ -83,6 +83,29 @@
     transition: width 0.3s;
   }
 
+  .summary {
+    margin-top: 25px;
+    width: 90%;
+    max-width: 600px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 15px;
+  }
+  .summary h3 {
+    color: #ffa31a;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #333;
+    padding: 5px 0;
+    color: #ccc;
+  }
+  .summary-item:last-child { border-bottom: none; }
+  .status { font-weight: bold; }
+
   @media (min-width: 768px) {
     .card { padding: 25px 40px; }
   }
@@ -103,6 +126,10 @@
   <div class="progress">
     <div id="progressBar" class="progress-bar"></div>
   </div>
+  <div class="summary">
+    <h3>Resumen Cronológico</h3>
+    <div id="summaryList"></div>
+  </div>
 </div>
 
 <script>
@@ -112,31 +139,31 @@ const raceDate = new Date("2025-11-14");
 let currentDate = new Date();
 
 const plan = {
-  "2025-10-20": {icon:"🏃‍♂️", type:"Cinta", details:"5 km suaves (6:00/km), inclinación 1.5%, FC zona 2-3."},
-  "2025-10-21": {icon:"💪", type:"Gimnasio", details:"Sentadillas 4x12, Peso muerto 3x10, Core 3x1min, Plancha 3x40s."},
-  "2025-10-22": {icon:"🧘‍♂️", type:"Descanso", details:"Movilidad articular ligera o caminata 30 min."},
-  "2025-10-23": {icon:"🏃‍♂️", type:"Calle", details:"5 km ritmo controlado (5:45/km), FC zona 4."},
-  "2025-10-24": {icon:"🏃‍♂️", type:"Cinta", details:"5 km regenerativos + 10 min caminata, inclinación 1%."},
-  "2025-10-25": {icon:"💪", type:"Gimnasio", details:"Técnica de carrera + Skipping 3x40s, Flexiones 3x12, Remo TRX 3x10."},
-  "2025-10-26": {icon:"🏃‍♂️", type:"Cinta", details:"Tirada larga 7 km (6:00/km), inclinación 1.5%."},
-  "2025-10-27": {icon:"🏃‍♂️", type:"Cinta", details:"4x1 km a 5:20/km, 2 min trote entre, inclinación 1%."},
-  "2025-10-28": {icon:"💪", type:"Gimnasio", details:"Sentadilla 4x10, Prensa 3x12, Puente glúteo 3x15, Core 3x1min."},
-  "2025-10-29": {icon:"🧘‍♂️", type:"Descanso", details:"Movilidad general o yoga 30 min."},
-  "2025-10-30": {icon:"🏃‍♂️", type:"Calle", details:"6 km suaves (6:00/km), mantener FC 150–160."},
-  "2025-10-31": {icon:"🏃‍♂️", type:"Cinta", details:"5 km suaves + estiramientos, inclinación 1%."},
-  "2025-11-01": {icon:"💪", type:"Gimnasio", details:"Fuerza superior: Flexiones 3x15, Press banca 3x10, Core 3x1min."},
-  "2025-11-02": {icon:"🏃‍♂️", type:"Cinta", details:"Tirada larga 8 km (6:00/km), inclinación 1.5%."},
-  "2025-11-03": {icon:"🏃‍♂️", type:"Cinta", details:"Fartlek 6 km (1’ rápido / 2’ suave), inclinación 1%."},
-  "2025-11-04": {icon:"💪", type:"Gimnasio", details:"Core 3x1min, Sentadilla 4x12, Saltos cortos 3x10, Skipping 3x40s."},
-  "2025-11-05": {icon:"🧘‍♂️", type:"Descanso", details:"Movilidad y foam roller."},
-  "2025-11-06": {icon:"🏃‍♂️", type:"Calle", details:"6 km ritmo medio (5:40/km)."},
-  "2025-11-07": {icon:"🏃‍♂️", type:"Cinta", details:"5 km suaves + movilidad, inclinación 1%."},
-  "2025-11-08": {icon:"💪", type:"Gimnasio", details:"Pliometría ligera: saltos al cajón 3x10, Zancadas 3x12, Core 3x1min."},
-  "2025-11-09": {icon:"🏃‍♂️", type:"Cinta", details:"Tirada larga 9 km (6:00/km), inclinación 1.5%."},
-  "2025-11-10": {icon:"🏃‍♂️", type:"Cinta", details:"4 km suaves + 3 aceleraciones, inclinación 0.5%."},
-  "2025-11-11": {icon:"💪", type:"Gimnasio", details:"Core + movilidad 30 min, estiramientos globales."},
-  "2025-11-12": {icon:"🏃‍♂️", type:"Calle", details:"3 km muy suaves (6:15/km)."},
-  "2025-11-13": {icon:"🧘‍♂️", type:"Descanso", details:"Descanso total y buena hidratación."}
+  "2025-10-20": {icon:"🏃‍♂️", type:"Cinta", details:"5 km suaves (6:00/km)\nInclinación 1.5%\nFC zona 2-3"},
+  "2025-10-21": {icon:"💪", type:"Gimnasio", details:"Sentadillas 4x12\nPeso muerto 3x10\nCore 3x1min\nPlancha 3x40s"},
+  "2025-10-22": {icon:"🧘‍♂️", type:"Descanso", details:"Movilidad articular ligera o caminata 30 min"},
+  "2025-10-23": {icon:"🏃‍♂️", type:"Calle", details:"5 km ritmo controlado (5:45/km)\nFC zona 4"},
+  "2025-10-24": {icon:"🏃‍♂️", type:"Cinta", details:"5 km regenerativos + 10 min caminata\nInclinación 1%"},
+  "2025-10-25": {icon:"💪", type:"Gimnasio", details:"Técnica de carrera\nSkipping 3x40s\nFlexiones 3x12\nRemo TRX 3x10"},
+  "2025-10-26": {icon:"🏃‍♂️", type:"Cinta", details:"Tirada larga 7 km (6:00/km)\nInclinación 1.5%"},
+  "2025-10-27": {icon:"🏃‍♂️", type:"Cinta", details:"4x1 km a 5:20/km\n2 min trote entre\nInclinación 1%"},
+  "2025-10-28": {icon:"💪", type:"Gimnasio", details:"Sentadilla 4x10\nPrensa 3x12\nPuente glúteo 3x15\nCore 3x1min"},
+  "2025-10-29": {icon:"🧘‍♂️", type:"Descanso", details:"Movilidad general o yoga 30 min"},
+  "2025-10-30": {icon:"🏃‍♂️", type:"Calle", details:"6 km suaves (6:00/km)\nMantener FC 150–160"},
+  "2025-10-31": {icon:"🏃‍♂️", type:"Cinta", details:"5 km suaves + estiramientos\nInclinación 1%"},
+  "2025-11-01": {icon:"💪", type:"Gimnasio", details:"Fuerza superior\nFlexiones 3x15\nPress banca 3x10\nCore 3x1min"},
+  "2025-11-02": {icon:"🏃‍♂️", type:"Cinta", details:"Tirada larga 8 km (6:00/km)\nInclinación 1.5%"},
+  "2025-11-03": {icon:"🏃‍♂️", type:"Cinta", details:"Fartlek 6 km (1’ rápido / 2’ suave)\nInclinación 1%"},
+  "2025-11-04": {icon:"💪", type:"Gimnasio", details:"Core 3x1min\nSentadilla 4x12\nSaltos cortos 3x10\nSkipping 3x40s"},
+  "2025-11-05": {icon:"🧘‍♂️", type:"Descanso", details:"Movilidad y foam roller"},
+  "2025-11-06": {icon:"🏃‍♂️", type:"Calle", details:"6 km ritmo medio (5:40/km)"},
+  "2025-11-07": {icon:"🏃‍♂️", type:"Cinta", details:"5 km suaves + movilidad\nInclinación 1%"},
+  "2025-11-08": {icon:"💪", type:"Gimnasio", details:"Pliometría ligera\nSaltos al cajón 3x10\nZancadas 3x12\nCore 3x1min"},
+  "2025-11-09": {icon:"🏃‍♂️", type:"Cinta", details:"Tirada larga 9 km (6:00/km)\nInclinación 1.5%"},
+  "2025-11-10": {icon:"🏃‍♂️", type:"Cinta", details:"4 km suaves + 3 aceleraciones\nInclinación 0.5%"},
+  "2025-11-11": {icon:"💪", type:"Gimnasio", details:"Core + movilidad 30 min\nEstiramientos globales"},
+  "2025-11-12": {icon:"🏃‍♂️", type:"Calle", details:"3 km muy suaves (6:15/km)"},
+  "2025-11-13": {icon:"🧘‍♂️", type:"Descanso", details:"Descanso total y buena hidratación"}
 };
 
 const completed = JSON.parse(localStorage.getItem("plan10kCompleted") || "[]");
@@ -172,6 +199,7 @@ function showDay(date) {
     </div>
   `;
   updateProgress();
+  updateSummary();
 }
 
 function toggleComplete(key) {
@@ -189,6 +217,23 @@ function updateProgress() {
   document.getElementById("progressBar").style.width = percent + "%";
 }
 
+function updateSummary() {
+  const summary = document.getElementById("summaryList");
+  summary.innerHTML = "";
+  Object.keys(plan).forEach(key => {
+    const day = plan[key];
+    const isCompleted = completed.includes(key);
+    const status = isCompleted ? "✅" : "⏳";
+    const color = isCompleted ? "#ffa31a" : "#777";
+    summary.innerHTML += `
+      <div class="summary-item">
+        <span>${key} – ${day.icon} ${day.type}</span>
+        <span class="status" style="color:${color}">${status}</span>
+      </div>
+    `;
+  });
+}
+
 document.getElementById("prevDay").onclick = () => {
   currentDate.setDate(currentDate.getDate() - 1);
   showDay(currentDate);
@@ -204,5 +249,3 @@ showDay(currentDate);
 </script>
 </body>
 </html>
-
-
