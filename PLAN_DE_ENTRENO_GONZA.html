@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan 10K Gonza 🏁</title>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(180deg, #2b2b2b, #000);
+    color: #fff;
+    margin: 0;
+    padding: 0;
+  }
+  header {
+    text-align: center;
+    padding: 20px;
+    background: rgba(255,255,255,0.05);
+  }
+  h1 { color: #ffa31a; margin-bottom: 5px; }
+  #countdown { font-size: 1.1rem; color: #ccc; }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid #333;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 15px 0;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 0 15px rgba(255,165,0,0.1);
+    transition: transform 0.3s;
+  }
+
+  .card.completed {
+    background: rgba(255,165,0,0.15);
+    border-color: #ffa31a;
+  }
+
+  .card:hover { transform: scale(1.02); }
+
+  .date { color: #ffa31a; font-weight: bold; margin-bottom: 10px; }
+  .type { font-size: 1.2rem; margin-bottom: 5px; }
+  .details { color: #ccc; margin-bottom: 15px; }
+  button {
+    background: #ffa31a;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  button:hover { background: #ffb84d; }
+
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    max-width: 600px;
+    margin-top: 15px;
+  }
+
+  .progress {
+    margin-top: 15px;
+    width: 90%;
+    max-width: 600px;
+    background: #333;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 10px;
+    background: #ffa31a;
+    width: 0%;
+    transition: width 0.3s;
+  }
+
+  @media (min-width: 768px) {
+    .card { padding: 25px 40px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Plan 10K Gonza 🏁</h1>
+  <div id="countdown"></div>
+</header>
+
+<div class="container">
+  <div id="day-card"></div>
+  <div class="nav">
+    <button id="prevDay">⬅️ Anterior</button>
+    <button id="nextDay">Siguiente ➡️</button>
+  </div>
+  <div class="progress">
+    <div id="progressBar" class="progress-bar"></div>
+  </div>
+</div>
+
+<script>
+const startDate = new Date("2025-10-20");
+const endDate = new Date("2025-11-13");
+const raceDate = new Date("2025-11-14");
+let currentDate = new Date();
+
+const plan = {
+  "2025-10-20": {icon:"🏃‍♂️", type:"Cinta", details:"5 km suaves (6:00/km), inclinación 1.5%, FC zona 2-3."},
+  "2025-10-21": {icon:"💪", type:"Gimnasio", details:"Sentadillas 4x12, Peso muerto 3x10, Core 3x1min, Plancha 3x40s."},
+  "2025-10-22": {icon:"🧘‍♂️", type:"Descanso", details:"Movilidad articular ligera o caminata 30 min."},
+  "2025-10-23": {icon:"🏃‍♂️", type:"Calle", details:"5 km ritmo controlado (5:45/km), FC zona 4."},
+  "2025-10-24": {icon:"🏃‍♂️", type:"Cinta", details:"5 km regenerativos + 10 min caminata, inclinación 1%."},
+  "2025-10-25": {icon:"💪", type:"Gimnasio", details:"Técnica de carrera + Skipping 3x40s, Flexiones 3x12, Remo TRX 3x10."},
+  "2025-10-26": {icon:"🏃‍♂️", type:"Cinta", details:"Tirada larga 7 km (6:00/km), inclinación 1.5%."},
+  "2025-10-27": {icon:"🏃‍♂️", type:"Cinta", details:"4x1 km a 5:20/km, 2 min trote entre, inclinación 1%."},
+  "2025-10-28": {icon:"💪", type:"Gimnasio", details:"Sentadilla 4x10, Prensa 3x12, Puente glúteo 3x15, Core 3x1min."},
+  "2025-10-29": {icon:"🧘‍♂️", type:"Descanso", details:"Movilidad general o yoga 30 min."},
+  "2025-10-30": {icon:"🏃‍♂️", type:"Calle", details:"6 km suaves (6:00/km), mantener FC 150–160."},
+  "2025-10-31": {icon:"🏃‍♂️", type:"Cinta", details:"5 km suaves + estiramientos, inclinación 1%."},
+  "2025-11-01": {icon:"💪", type:"Gimnasio", details:"Fuerza superior: Flexiones 3x15, Press banca 3x10, Core 3x1min."},
+  "2025-11-02": {icon:"🏃‍♂️", type:"Cinta", details:"Tirada larga 8 km (6:00/km), inclinación 1.5%."},
+  "2025-11-03": {icon:"🏃‍♂️", type:"Cinta", details:"Fartlek 6 km (1’ rápido / 2’ suave), inclinación 1%."},
+  "2025-11-04": {icon:"💪", type:"Gimnasio", details:"Core 3x1min, Sentadilla 4x12, Saltos cortos 3x10, Skipping 3x40s."},
+  "2025-11-05": {icon:"🧘‍♂️", type:"Descanso", details:"Movilidad y foam roller."},
+  "2025-11-06": {icon:"🏃‍♂️", type:"Calle", details:"6 km ritmo medio (5:40/km)."},
+  "2025-11-07": {icon:"🏃‍♂️", type:"Cinta", details:"5 km suaves + movilidad, inclinación 1%."},
+  "2025-11-08": {icon:"💪", type:"Gimnasio", details:"Pliometría ligera: saltos al cajón 3x10, Zancadas 3x12, Core 3x1min."},
+  "2025-11-09": {icon:"🏃‍♂️", type:"Cinta", details:"Tirada larga 9 km (6:00/km), inclinación 1.5%."},
+  "2025-11-10": {icon:"🏃‍♂️", type:"Cinta", details:"4 km suaves + 3 aceleraciones, inclinación 0.5%."},
+  "2025-11-11": {icon:"💪", type:"Gimnasio", details:"Core + movilidad 30 min, estiramientos globales."},
+  "2025-11-12": {icon:"🏃‍♂️", type:"Calle", details:"3 km muy suaves (6:15/km)."},
+  "2025-11-13": {icon:"🧘‍♂️", type:"Descanso", details:"Descanso total y buena hidratación."}
+};
+
+const completed = JSON.parse(localStorage.getItem("plan10kCompleted") || "[]");
+
+function getKey(date) {
+  return date.toISOString().split("T")[0];
+}
+
+function updateCountdown() {
+  const today = new Date();
+  const diff = Math.ceil((raceDate - today) / (1000 * 60 * 60 * 24));
+  document.getElementById("countdown").innerText =
+    diff > 0 ? `⏳ Faltan ${diff} días para la carrera` : "🏁 ¡Día de carrera!";
+}
+
+function showDay(date) {
+  const key = getKey(date);
+  const day = plan[key];
+  const card = document.getElementById("day-card");
+  if (!day) {
+    card.innerHTML = "<div class='card'><p>No hay entrenamiento programado para hoy.</p></div>";
+    return;
+  }
+  const isCompleted = completed.includes(key);
+  card.innerHTML = `
+    <div class="card ${isCompleted ? 'completed' : ''}">
+      <div class="date">${key}</div>
+      <div class="type">${day.icon} ${day.type}</div>
+      <div class="details">${day.details}</div>
+      <button onclick="toggleComplete('${key}')">
+        ${isCompleted ? '✅ Completado' : 'Marcar completado'}
+      </button>
+    </div>
+  `;
+  updateProgress();
+}
+
+function toggleComplete(key) {
+  const idx = completed.indexOf(key);
+  if (idx >= 0) completed.splice(idx, 1);
+  else completed.push(key);
+  localStorage.setItem("plan10kCompleted", JSON.stringify(completed));
+  showDay(currentDate);
+}
+
+function updateProgress() {
+  const total = Object.keys(plan).length;
+  const done = completed.length;
+  const percent = Math.min((done / total) * 100, 100);
+  document.getElementById("progressBar").style.width = percent + "%";
+}
+
+document.getElementById("prevDay").onclick = () => {
+  currentDate.setDate(currentDate.getDate() - 1);
+  showDay(currentDate);
+};
+
+document.getElementById("nextDay").onclick = () => {
+  currentDate.setDate(currentDate.getDate() + 1);
+  showDay(currentDate);
+};
+
+updateCountdown();
+showDay(currentDate);
+</script>
+</body>
+</html>
