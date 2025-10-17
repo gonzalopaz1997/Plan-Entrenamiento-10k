@@ -36,27 +36,15 @@
     width: 90%;
     max-width: 600px;
     box-shadow: 0 0 15px rgba(255,165,0,0.1);
-    transition: transform 0.3s;
   }
-
-  .card.completed {
-    background: rgba(255,165,0,0.15);
-    border-color: #ffa31a;
-  }
-
-  .card:hover { transform: scale(1.02); }
-
-  .date { color: #ffa31a; font-weight: bold; margin-bottom: 10px; }
+  .card.completed { background: rgba(255,165,0,0.15); border-color: #ffa31a; }
+  .date { color: #ffa31a; font-weight: bold; margin-bottom: 10px; white-space: pre-line; }
   .type { font-size: 1.2rem; margin-bottom: 5px; }
   .details { color: #ccc; margin-bottom: 15px; white-space: pre-line; }
+
   button {
-    background: #ffa31a;
-    border: none;
-    border-radius: 10px;
-    padding: 10px 20px;
-    color: #000;
-    font-weight: bold;
-    cursor: pointer;
+    background: #ffa31a; border: none; border-radius: 10px;
+    padding: 10px 20px; color: #000; font-weight: bold; cursor: pointer;
   }
   button:hover { background: #ffb84d; }
 
@@ -91,24 +79,9 @@
     border-radius: 10px;
     padding: 15px;
   }
-  .summary h3 {
-    color: #ffa31a;
-    margin-bottom: 10px;
-    text-align: center;
-  }
-  .summary-item {
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid #333;
-    padding: 5px 0;
-    color: #ccc;
-  }
+  .summary h3 { color: #ffa31a; text-align: center; margin-bottom: 10px; }
+  .summary-item { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 5px 0; color: #ccc; }
   .summary-item:last-child { border-bottom: none; }
-  .status { font-weight: bold; }
-
-  @media (min-width: 768px) {
-    .card { padding: 25px 40px; }
-  }
 </style>
 </head>
 <body>
@@ -123,9 +96,7 @@
     <button id="prevDay">⬅️ Anterior</button>
     <button id="nextDay">Siguiente ➡️</button>
   </div>
-  <div class="progress">
-    <div id="progressBar" class="progress-bar"></div>
-  </div>
+  <div class="progress"><div id="progressBar" class="progress-bar"></div></div>
   <div class="summary">
     <h3>Resumen Cronológico</h3>
     <div id="summaryList"></div>
@@ -133,119 +104,68 @@
 </div>
 
 <script>
-const startDate = new Date("2025-10-20");
-const endDate = new Date("2025-11-13");
 const raceDate = new Date("2025-11-14");
-let currentDate = new Date();
-
 const plan = {
   "2025-10-20": {icon:"🏃‍♂️", type:"Cinta", details:"5 km suaves (6:00/km)\nInclinación 1.5%\nFC zona 2-3"},
   "2025-10-21": {icon:"💪", type:"Gimnasio", details:"Sentadillas 4x12\nPeso muerto 3x10\nCore 3x1min\nPlancha 3x40s"},
-  "2025-10-22": {icon:"🧘‍♂️", type:"Descanso", details:"Movilidad articular ligera o caminata 30 min"},
-  "2025-10-23": {icon:"🏃‍♂️", type:"Calle", details:"5 km ritmo controlado (5:45/km)\nFC zona 4"},
-  "2025-10-24": {icon:"🏃‍♂️", type:"Cinta", details:"5 km regenerativos + 10 min caminata\nInclinación 1%"},
-  "2025-10-25": {icon:"💪", type:"Gimnasio", details:"Técnica de carrera\nSkipping 3x40s\nFlexiones 3x12\nRemo TRX 3x10"},
-  "2025-10-26": {icon:"🏃‍♂️", type:"Cinta", details:"Tirada larga 7 km (6:00/km)\nInclinación 1.5%"},
-  "2025-10-27": {icon:"🏃‍♂️", type:"Cinta", details:"4x1 km a 5:20/km\n2 min trote entre\nInclinación 1%"},
-  "2025-10-28": {icon:"💪", type:"Gimnasio", details:"Sentadilla 4x10\nPrensa 3x12\nPuente glúteo 3x15\nCore 3x1min"},
-  "2025-10-29": {icon:"🧘‍♂️", type:"Descanso", details:"Movilidad general o yoga 30 min"},
-  "2025-10-30": {icon:"🏃‍♂️", type:"Calle", details:"6 km suaves (6:00/km)\nMantener FC 150–160"},
-  "2025-10-31": {icon:"🏃‍♂️", type:"Cinta", details:"5 km suaves + estiramientos\nInclinación 1%"},
-  "2025-11-01": {icon:"💪", type:"Gimnasio", details:"Fuerza superior\nFlexiones 3x15\nPress banca 3x10\nCore 3x1min"},
-  "2025-11-02": {icon:"🏃‍♂️", type:"Cinta", details:"Tirada larga 8 km (6:00/km)\nInclinación 1.5%"},
-  "2025-11-03": {icon:"🏃‍♂️", type:"Cinta", details:"Fartlek 6 km (1’ rápido / 2’ suave)\nInclinación 1%"},
-  "2025-11-04": {icon:"💪", type:"Gimnasio", details:"Core 3x1min\nSentadilla 4x12\nSaltos cortos 3x10\nSkipping 3x40s"},
-  "2025-11-05": {icon:"🧘‍♂️", type:"Descanso", details:"Movilidad y foam roller"},
-  "2025-11-06": {icon:"🏃‍♂️", type:"Calle", details:"6 km ritmo medio (5:40/km)"},
-  "2025-11-07": {icon:"🏃‍♂️", type:"Cinta", details:"5 km suaves + movilidad\nInclinación 1%"},
-  "2025-11-08": {icon:"💪", type:"Gimnasio", details:"Pliometría ligera\nSaltos al cajón 3x10\nZancadas 3x12\nCore 3x1min"},
-  "2025-11-09": {icon:"🏃‍♂️", type:"Cinta", details:"Tirada larga 9 km (6:00/km)\nInclinación 1.5%"},
-  "2025-11-10": {icon:"🏃‍♂️", type:"Cinta", details:"4 km suaves + 3 aceleraciones\nInclinación 0.5%"},
-  "2025-11-11": {icon:"💪", type:"Gimnasio", details:"Core + movilidad 30 min\nEstiramientos globales"},
-  "2025-11-12": {icon:"🏃‍♂️", type:"Calle", details:"3 km muy suaves (6:15/km)"},
-  "2025-11-13": {icon:"🧘‍♂️", type:"Descanso", details:"Descanso total y buena hidratación"}
+  // ... (mantén el resto igual que antes)
 };
-
 const completed = JSON.parse(localStorage.getItem("plan10kCompleted") || "[]");
+let currentDate = new Date();
 
-function getKey(date) {
-  return date.toISOString().split("T")[0];
+function getKey(date){ return date.toISOString().split("T")[0]; }
+function formatDate(date){
+  const dias = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+  const meses = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+  return `${dias[date.getDay()]}\n${String(date.getDate()).padStart(2,"0")}-${meses[date.getMonth()]}-${date.getFullYear()}`;
 }
 
-function updateCountdown() {
-  const today = new Date();
-  const diff = Math.ceil((raceDate - today) / (1000 * 60 * 60 * 24));
-  document.getElementById("countdown").innerText =
-    diff > 0 ? `⏳ Faltan ${diff} días para la carrera` : "🏁 ¡Día de carrera!";
+function updateCountdown(){
+  const hoy = new Date();
+  const diff = Math.ceil((raceDate - hoy)/(1000*60*60*24));
+  document.getElementById("countdown").textContent = diff>0 ? `⏳ Faltan ${diff} días para la carrera` : "🏁 ¡Día de carrera!";
 }
 
-function showDay(date) {
+function showDay(date){
   const key = getKey(date);
   const day = plan[key];
   const card = document.getElementById("day-card");
-  if (!day) {
-    card.innerHTML = "<div class='card'><p>No hay entrenamiento programado para hoy.</p></div>";
-    return;
-  }
+  if(!day){ card.innerHTML="<div class='card'><p>No hay entrenamiento programado para hoy.</p></div>"; return; }
   const isCompleted = completed.includes(key);
   card.innerHTML = `
-    <div class="card ${isCompleted ? 'completed' : ''}">
-      <div class="date">${key}</div>
+    <div class="card ${isCompleted?'completed':''}">
+      <div class="date">${formatDate(new Date(key))}</div>
       <div class="type">${day.icon} ${day.type}</div>
       <div class="details">${day.details}</div>
-      <button onclick="toggleComplete('${key}')">
-        ${isCompleted ? '✅ Completado' : 'Marcar completado'}
-      </button>
-    </div>
-  `;
-  updateProgress();
-  updateSummary();
+      <button onclick="toggleComplete('${key}')">${isCompleted?'✅ Completado':'Marcar completado'}</button>
+    </div>`;
+  updateProgress(); updateSummary();
 }
 
-function toggleComplete(key) {
+function toggleComplete(key){
   const idx = completed.indexOf(key);
-  if (idx >= 0) completed.splice(idx, 1);
-  else completed.push(key);
-  localStorage.setItem("plan10kCompleted", JSON.stringify(completed));
+  if(idx>=0) completed.splice(idx,1); else completed.push(key);
+  localStorage.setItem("plan10kCompleted",JSON.stringify(completed));
   showDay(currentDate);
 }
 
-function updateProgress() {
-  const total = Object.keys(plan).length;
-  const done = completed.length;
-  const percent = Math.min((done / total) * 100, 100);
-  document.getElementById("progressBar").style.width = percent + "%";
+function updateProgress(){
+  const total = Object.keys(plan).length, done = completed.length;
+  document.getElementById("progressBar").style.width = ((done/total)*100)+"%";
 }
 
-function updateSummary() {
-  const summary = document.getElementById("summaryList");
-  summary.innerHTML = "";
-  Object.keys(plan).forEach(key => {
-    const day = plan[key];
-    const isCompleted = completed.includes(key);
-    const status = isCompleted ? "✅" : "⏳";
-    const color = isCompleted ? "#ffa31a" : "#777";
-    summary.innerHTML += `
-      <div class="summary-item">
-        <span>${key} – ${day.icon} ${day.type}</span>
-        <span class="status" style="color:${color}">${status}</span>
-      </div>
-    `;
+function updateSummary(){
+  const s = document.getElementById("summaryList");
+  s.innerHTML="";
+  Object.keys(plan).forEach(k=>{
+    const d = plan[k], done=completed.includes(k);
+    s.innerHTML+=`<div class="summary-item"><span>${formatDate(new Date(k))} – ${d.icon} ${d.type}</span><span>${done?'✅':'⏳'}</span></div>`;
   });
 }
 
-document.getElementById("prevDay").onclick = () => {
-  currentDate.setDate(currentDate.getDate() - 1);
-  showDay(currentDate);
-};
-
-document.getElementById("nextDay").onclick = () => {
-  currentDate.setDate(currentDate.getDate() + 1);
-  showDay(currentDate);
-};
-
-updateCountdown();
-showDay(currentDate);
+document.getElementById("prevDay").onclick=()=>{currentDate.setDate(currentDate.getDate()-1);showDay(currentDate);}
+document.getElementById("nextDay").onclick=()=>{currentDate.setDate(currentDate.getDate()+1);showDay(currentDate);}
+updateCountdown(); showDay(currentDate);
 </script>
 </body>
 </html>
